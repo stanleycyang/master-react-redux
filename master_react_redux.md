@@ -82,13 +82,21 @@ console.log(actionCreator())
 It is a convention to include the type to allow Redux to know how to handle the action. You can also pass additional data within the object, as such:
 
 ```js
-function addNumber(num1, num2) {
+function passInfo (info1, info2) {
 	return {
-		type: 'ADD_NUMBER',
-		someData: num1,
-		someOtherData: num2
+		type: 'PASS_INFO_ACTION',
+		someData: info1,
+		someOtherData: info2
 	}
 }
+
+console.log(passInfo('Hello', 'World'))
+
+/* Output
+ * { type: 'PASS_INFO_ACTION',
+ *   someData: 'Hello',
+ *   someOtherData: 'World' }
+ */
 ```
 
 Later on, we will see action creators return functions to perform asynchronous tasks.
