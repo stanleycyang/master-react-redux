@@ -37,7 +37,7 @@ console.log(passInfo('Hello', 'World'));
  * A simple store
  */
 
-import { createStore } from 'redux'
+import { createStore, combineReducers } from 'redux'
 const store = createStore(() => {})
 
 /*
@@ -49,4 +49,49 @@ const reducer = function (state, action) {
   console.log(action)
 }
 
-const simpleStore = createStore(reducer)
+const anotherStore = createStore(reducer)
+
+/*
+ * More in-depth reducer example
+ */
+
+const simpleReducer = function (state = {}, action) {
+  console.log('a reducer was called with the state', state, 'and action', action)
+
+  switch (action.type) {
+    case 'SIMPLE_ACTION':
+      return {
+        ...state,
+        data: action.data
+      }
+    default:
+      return state
+  }
+}
+
+const simpleStore = createStore(simpleReducer)
+
+
+const reducerOne = function (state = {}, action) {
+  console.log('reducerOne was called with state', state, 'and action', action)
+  switch (action.type) {
+    default:
+      return state
+  }
+}
+
+const reducerTwo = function (state = {}, action) {
+  console.log('reducerTwo was called with state', state, 'and action', action)
+  switch (action.type) {
+    default:
+      return state
+  }
+}
+
+const combinedReducer = combineReducers({
+  one: reducerOne,
+  two: reducerTwo
+})
+
+const newStore = createStore(combinedReducer)
+console.log('store state after initialization', newStore.getState())
