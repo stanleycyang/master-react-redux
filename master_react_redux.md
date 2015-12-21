@@ -420,6 +420,12 @@ Run your script again and at this point, you will see an output like this:
 
 	brandNewStore has been updated. Latest store state:  { user: { name: 'Stanley Yelnats' }, books: [ 'Harry Potter' ] }
 
-At this point, we now have a fully grasp of Redux and the Flux loop! 
+At this point, we now have a full grasp of Redux and the Flux loop! 
 
 In a future tutorial, I will cover how Redux works with ReactJS to really create a powerful yet modular application. Stay tuned!
+
+## Additional resources
+
+- Source code for this tutorial: [master-react-redux](https://github.com/stanleycyang/master-react-redux). Feel free to fork, edit, contribute!
+- Source code for Redux: [Redux](https://github.com/rackt/redux)
+- Source code for React Redux: [React Redux](https://github.com/rackt/react-redux)
