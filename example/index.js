@@ -37,7 +37,8 @@ console.log(passInfo('Hello', 'World'));
  * A simple store
  */
 
-import { createStore, combineReducers } from 'redux'
+import { createStore, combineReducers, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk'
 const store = createStore(() => {})
 
 /*
@@ -71,7 +72,6 @@ const simpleReducer = function (state = {}, action) {
 
 const simpleStore = createStore(simpleReducer)
 
-
 const reducerOne = function (state = {}, action) {
   console.log('reducerOne was called with state', state, 'and action', action)
   switch (action.type) {
@@ -95,3 +95,89 @@ const combinedReducer = combineReducers({
 
 const newStore = createStore(combinedReducer)
 console.log('store state after initialization', newStore.getState())
+
+/*
+ * Dispatch
+ */
+
+// synchronous
+function setName(name) {
+  return {
+    type: 'SET_NAME',
+    name
+  }
+}
+
+// asynchronous
+function addBook(book) {
+  return function (dispatch) {
+    setTimeout(function () {
+      dispatch({
+        type: 'ADD_BOOK',
+        book
+      })
+    }, 1000)
+  }
+}
+
+// Initialize the reducer with the state of an empty object
+const userReducer = function (state = {}, action) {
+  console.log('userReducer was called with state', state, 'and action', action)
+
+  // Check the type of action is dispatched
+  switch (action.type) {
+    case 'SET_NAME':
+      // Return initial state, and the new name
+      return {
+        ...state,
+        name: action.name
+      }
+    // Return the state to prevent it from getting set to null
+    default:
+      return state
+  }
+}
+
+// Initialize the reducer with the state of an empty array
+const booksReducer = function (state = [], action) {
+  console.log('booksReducer was called with state', state, 'and action', action)
+  // Check the type of action is dispatched
+  switch (action.type) {
+    case 'ADD_BOOK':
+      // Return the initial state, and the newly added book
+      return [
+        ...state,
+        action.book
+      ]
+    // Return state to prevent it from getting set to null
+    default:
+      return state
+  }
+}
+
+// Combine the reducers together
+const combineUserAndBooksReducers = combineReducers({
+  user: userReducer,
+  books: booksReducer
+})
+
+// Apply middleware
+const createStoreWithMiddleware = applyMiddleware(thunk)(createStore)
+
+// Create the store
+const brandNewStore = createStoreWithMiddleware(combineUserAndBooksReducers)
+console.log(brandNewStore.getState())
+
+// Run sync function
+brandNewStore.dispatch(setName('Stanley Yelnats'))
+console.log('store has been changed to', brandNewStore.getState())
+
+// Run async function
+brandNewStore.dispatch(addBook('Harry Potter'))
+console.log('store has been changed to', brandNewStore.getState())
+
+// Subscribe
+brandNewStore.subscribe(function () {
+  console.log('brandNewStore has been updated. Latest store state: ', brandNewStore.getState())
+  // Update the views here
+})

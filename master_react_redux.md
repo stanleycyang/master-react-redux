@@ -11,7 +11,17 @@
 - Changing the state via reducers
 - Dispatching synchronous and asynchronous actions
 - Using middleware in redux
-- Provider & connect
+- Applying the subscriber
+
+## What is [Redux](https://github.com/rackt/redux)?
+
+> Redux is a predictable state container for JavaScript apps.
+	
+> It helps you write applications that behave consistently, run in different environments (client, server, and native), and are easy to test. On top of that, it provides a great developer experience, such as live code editing combined with a time traveling debugger.
+
+Source: [Redux Github](https://github.com/rackt/redux)
+
+In order to understand Redux, we will need to understand the Flux way of implementation and the unidirectional data flow.
 
 ## Unidirectional data flow
 
@@ -53,6 +63,8 @@ By using Redux with ReactJS, we will see data flow from the top-down (via props)
 - Modular and reusable code. Dumb components can be used with different state source
 
 Now that we have gained a high level overview, let's dive into how Redux works.
+
+> **Note:** To follow along, create a directory called **mastering-redux** and inside it, make an **index.js**. After you have done this, run **npm install -S redux react-redux**
 
 ## Actions
 
@@ -238,7 +250,176 @@ Our new current state will look something like this:
 }
 ```
 
-Now that we have set up a basic state and gained a basic understanding of Redux, we can now tie it together with dispatchers.
+Now that we have set up a basic state and gained a basic understanding of Redux, we can now tie it together by dispatching actions.
 
-## Dispatchers
+## Dispatch
 
+We have created a store, reducers, and actions in the previous examples. It's time to put it all together and really see Redux in action!
+
+Essentially, a dispatch 
+
+In this next example, we're going to see how Redux handles [synchronous and asynchronous](http://www.cs.unc.edu/~dewan/242/s06/notes/ipc/node9.html) functions. If you are following along, you will need to run `npm install -S redux-thunk`. 
+
+### What is a [thunk?!](https://github.com/gaearon/redux-thunk)
+
+In short, it delays the evaluation of the code until its called. 
+
+```js
+// calculation of 1 + 2 is immediate
+// x === 3
+let x = 1 + 2;
+
+// calculation of 1 + 2 is delayed
+// foo can be called later to perform the calculation
+// foo is a thunk!
+let foo = () => 1 + 2;
+```
+
+We will also be `applyMiddleware` functionality from `redux`. This will allow us to apply the `redux-thunk` as a middleware to our store.
+
+Go ahead and run write this code snippet:
+
+```js
+import { createStore, combineReducers, applyMiddleware } from 'redux'
+
+// We need the thunk to delay the evaluation in async functions
+import thunk from 'redux-thunk'
+
+/*
+ * Dispatch
+ */
+
+// synchronous
+function setName(name) {
+  return {
+    type: 'SET_NAME',
+    name
+  }
+}
+
+// asynchronous
+function addBook(book) {
+  return function (dispatch) {
+    setTimeout(function () {
+      dispatch({
+        type: 'ADD_BOOK',
+        book
+      })
+    }, 1000)
+  }
+}
+
+// Initialize the reducer with the state of an empty object
+const userReducer = function (state = {}, action) {
+  console.log('userReducer was called with state', state, 'and action', action)
+
+  // Check the type of action is dispatched
+  switch (action.type) {
+    case 'SET_NAME':
+      // Return initial state, and the new name
+      return {
+        ...state,
+        name: action.name
+      }
+    // Return the state to prevent it from getting set to null
+    default:
+      return state
+  }
+}
+
+// Initialize the reducer with the state of an empty array
+const booksReducer = function (state = [], action) {
+  console.log('booksReducer was called with state', state, 'and action', action)
+  // Check the type of action is dispatched
+  switch (action.type) {
+    case 'ADD_BOOK':
+      // Return the initial state, and the newly added book
+      return [
+        ...state,
+        action.book
+      ]
+    // Return state to prevent it from getting set to null
+    default:
+      return state
+  }
+}
+
+// Combine the reducers together
+const combineUserAndBooksReducers = combineReducers({
+  user: userReducer,
+  books: booksReducer
+})
+
+// Apply middleware
+const createStoreWithMiddleware = applyMiddleware(thunk)(createStore)
+
+// Create the store
+const brandNewStore = createStoreWithMiddleware(combineUserAndBooksReducers)
+console.log(brandNewStore.getState())
+
+// Run sync function
+brandNewStore.dispatch(setName('Stanley Yelnats'))
+console.log('store has been changed to', brandNewStore.getState())
+
+// Run async function
+brandNewStore.dispatch(addBook('Harry Potter'))
+console.log('store has been changed to', brandNewStore.getState())
+
+```
+
+You should get an output that looks like this:
+
+	userReducer was called with state {} and action { type: '@@redux/INIT' }
+	userReducer was called with state {} and action { type: '@@redux/PROBE_UNKNOWN_ACTION_n.b.g.n.2.d.9.r.u.d.i' }
+	booksReducer was called with state [] and action { type: '@@redux/INIT' }
+	booksReducer was called with state [] and action { type: '@@redux/PROBE_UNKNOWN_ACTION_u.3.4.5.m.c.a.y.v.i' }
+	userReducer was called with state {} and action { type: '@@redux/INIT' }
+	booksReducer was called with state [] and action { type: '@@redux/INIT' }
+	{ user: {}, books: [] }
+	userReducer was called with state {} and action { type: 'SET_NAME', name: 'Stanley Yelnats' }
+	booksReducer was called with state [] and action { type: 'SET_NAME', name: 'Stanley Yelnats' }
+	store has been changed to { user: { name: 'Stanley Yelnats' }, books: [] }
+	store has been changed to { user: { name: 'Stanley Yelnats' }, books: [] }
+	userReducer was called with state { name: 'Stanley Yelnats' } and action { type: 'ADD_BOOK', book: 'Harry Potter' }
+	booksReducer was called with state [] and action { type: 'ADD_BOOK', book: 'Harry Potter' }
+
+Looking at this code, you can see that our store was initialized with our 2 reducers (userReducer and booksReducer).
+
+**userReducer** was called with a state of an empty object *{}*.
+
+**booksReducer** was called with a state of an empty array *[]*.
+
+The synchronous method **setName** was called right away, modifying the name to '*Stanley Yelnats*'. It flows through both reducers to see if it finds a case within the switch statement which will modify the state.
+
+Then the asynchronous method **addBook** was called. It in and added '*Harry Potter*' to the books value.
+
+## Subscribe
+
+At this point, we are very close to finishing the Flux loop. We need something to "watch" over our Redux store to check for updates. Fortunately, we can simply do the following:
+
+```js
+store.subscribe(function () {
+	// retrieve latest store state here
+	console.log(store.getState())
+})
+```
+
+Let's try it out and add the `subscribe` functionality to our previous example:
+
+```js
+...
+
+brandNewStore.subscribe(function() {
+	console.log('brandNewStore has been updated. Latest store state: ', brandNewStore.getState())
+})
+
+...
+```
+
+Run your script again and at this point, you will see an output like this:
+
+	brandNewStore has been updated. Latest store state:  { user: { name: 'Stanley Yelnats' }, books: [ 'Harry Potter' ] }
+
+At this point, we now have a fully grasp of Redux and the Flux loop! 
+
+In a future tutorial, I will cover how Redux works with ReactJS to really create a powerful yet modular application. Stay tuned!
