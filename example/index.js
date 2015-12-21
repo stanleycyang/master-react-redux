@@ -1,4 +1,9 @@
 /*
+ * Note: EXECUTE THIS FILE WITH BABEL-NODE
+ * To install, run 'npm i -g babel-cli'
+ */
+
+/*
  * Action Creators
  */
 

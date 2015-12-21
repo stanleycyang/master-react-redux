@@ -1,5 +1,3 @@
-# Mastering React Redux
-
 > **Redux** is a popular unidirectional framework to use with **ReactJS**. It uses a data structure to maintain the application's current state. My goal is to teach you the fundamental concepts of Redux in a clear and concise manner.
 
 ## Objectives
@@ -64,7 +62,10 @@ By using Redux with ReactJS, we will see data flow from the top-down (via props)
 
 Now that we have gained a high level overview, let's dive into how Redux works.
 
-> **Note:** To follow along, create a directory called **mastering-redux** and inside it, make an **index.js**. After you have done this, run **npm install -S redux react-redux**
+> **Note:** To follow along, create a directory called **mastering-redux** and inside it, make an **index.js**. After you have done this, run **npm install -S redux react-redux**.
+
+> **Executing the ES6 file:**
+> I am executing the file with '**babel-node**', which you can install it globally by running `npm install -g babel-cli`. Then execute the file as such: `babel-node index.js`
 
 ## Actions
 
@@ -427,5 +428,6 @@ In a future tutorial, I will cover how Redux works with ReactJS to really create
 ## Additional resources
 
 - Source code for this tutorial: [master-react-redux](https://github.com/stanleycyang/master-react-redux). Feel free to fork, edit, contribute!
+- Step-by-step tutorial: [Redux tutorial](https://github.com/happypoulp/redux-tutorial)
 - Source code for Redux: [Redux](https://github.com/rackt/redux)
 - Source code for React Redux: [React Redux](https://github.com/rackt/react-redux)
